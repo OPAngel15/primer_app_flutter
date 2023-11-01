@@ -31,16 +31,23 @@ class MyApp extends StatelessWidget {
 class MyAppState extends ChangeNotifier{
   var current = WordPair.random();
   var favoritos = <WordPair>[];
+  var historial = <WordPair>[];
+
+  GlobalKey? historialListKey;
 
   void getSiguiente(){
+    historial.insert(0, current);
+    var animattedList = historialListKey?.currentState as AnimatedListState?;
+    animattedList?.insertItem(0);
     current = WordPair.random();
     notifyListeners();
   }
-void toggleFavoritos(){
-  if (favoritos.contains(current)){
-    favoritos.remove(current);   
+void toggleFavoritos({WordPair? idea}){
+idea = idea?? current;
+  if (favoritos.contains(idea)) { 
+    favoritos.remove(idea);   
 }else{
-  favoritos.add(current);
+  favoritos.add(idea);
 }
 notifyListeners();
 
@@ -147,6 +154,10 @@ class GeneratorPage extends StatelessWidget{
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+          Expanded(
+            flex: 3,
+            child: HistorialListView()),
+            SizedBox(height: 20,),
           Bigcard(idea: (appState.current)),
           SizedBox(height: 10,),
           Row(
@@ -163,9 +174,11 @@ class GeneratorPage extends StatelessWidget{
                 }, 
                 child: Text("Siguiente")),
             ],
-          )
+          ),
+          Spacer(flex: 2),
           ],
         ),
+        
       );
   }
   
@@ -197,3 +210,53 @@ class FavoritosPage extends StatelessWidget{
       ],);
 }
 }
+
+class HistorialListView extends StatefulWidget{
+  const HistorialListView({Key? key}) : super(key: key);
+
+  @override
+  State<HistorialListView> createState() => _HistorialListViewState();
+}
+class _HistorialListViewState extends State<HistorialListView> {
+  final _key = GlobalKey();
+
+  static const Gradient _maskingGradient = LinearGradient(
+     colors: [Colors.transparent, Colors.black],
+     stops: [0.0, 0.5],
+     begin: Alignment.topCenter,
+     end: Alignment.bottomCenter,
+    );
+  @override
+  Widget build(BuildContext context){
+    final appState = context.watch<MyAppState>();
+    appState.historialListKey = _key;
+    return ShaderMask(
+      shaderCallback: (bounds) => _maskingGradient.createShader(bounds),
+      blendMode: BlendMode.dstIn,
+      child: AnimatedList(
+        key: _key,
+        reverse: true,
+        padding: EdgeInsets.only(top: 100),
+        initialItemCount: appState.historial.length,
+        itemBuilder: (context,index, animation){
+          final idea = appState.historial[index];
+          return SizeTransition(
+            sizeFactor: animation,
+            child: Center(
+              child: TextButton.icon(
+                onPressed: (){
+                  appState.toggleFavoritos(idea: idea);
+                },
+                 icon: appState.favoritos.contains(idea)
+                      ? Icon(Icons.favorite, size: 12,)
+                      : SizedBox(),
+                  label: Text(
+                    idea.asLowerCase,
+                    semanticsLabel: idea.asPascalCase,)),
+                  ),
+          );
+        }
+        ),
+    );
+  }
+} 
