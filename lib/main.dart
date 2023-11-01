@@ -170,3 +170,11 @@ class GeneratorPage extends StatelessWidget{
   }
   
 }
+
+
+class FavoritosPage extends StatelessWidget{
+  @override
+  Widget build(BuildContext context){
+    return Text("Favoritos");
+}
+}
