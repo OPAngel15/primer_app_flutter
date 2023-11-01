@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
+import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -65,33 +66,37 @@ class _MyHomePageState extends State<MyHomePage> {
       default: 
       throw UnimplementedError('No hay un widget para: $selectedIndex');
     }
-    return Scaffold(
-      body: Row(
-        children: [
-          SafeArea(child: NavigationRail(
-            extended: false,
-            destinations: [
-              NavigationRailDestination(
-                icon: Icon(Icons.home), 
-                label: Text("Inicio")),
-                NavigationRailDestination(
-                  icon: Icon(Icons.favorite), 
-                  label: Text("Favoritos"))
-            ],
-            selectedIndex: selectedIndex,
-            onDestinationSelected: (value){
-              setState(() {
-                selectedIndex = value;
-              });
-            },
-          ),
-          ),
-          Expanded(
-            child: Container(
-              color: Theme.of(context).colorScheme.primaryContainer,
-              child: page,)),
-         ], ),
-        )
+    return LayoutBuilder(
+      builder: (context, Constraints) {
+        return Scaffold(
+          body: Row(
+            children: [
+              SafeArea(child: NavigationRail(
+                extended: Constraints.maxWidth >= 600,
+                destinations: [
+                  NavigationRailDestination(
+                    icon: Icon(Icons.home), 
+                    label: Text("Inicio")),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.favorite), 
+                      label: Text("Favoritos"))
+                ],
+                selectedIndex: selectedIndex,
+                onDestinationSelected: (value){
+                  setState(() {
+                    selectedIndex = value;
+                  });
+                },
+              ),
+              ),
+              Expanded(
+                child: Container(
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  child: page,)),
+             ], ),
+            );
+      }
+    )
     ;
   }
 }
