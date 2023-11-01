@@ -62,17 +62,17 @@ class _MyHomePageState extends State<MyHomePage> {
     Widget page;
     switch(selectedIndex) {
       case 0: page = GeneratorPage(); break;
-      case 1: page = Placeholder(); break;
+      case 1: page = FavoritosPage(); break;
       default: 
       throw UnimplementedError('No hay un widget para: $selectedIndex');
     }
     return LayoutBuilder(
-      builder: (context, Constraints) {
+      builder: (context, constraints) {
         return Scaffold(
           body: Row(
             children: [
               SafeArea(child: NavigationRail(
-                extended: Constraints.maxWidth >= 600,
+                extended: constraints.maxWidth >= 600,
                 destinations: [
                   NavigationRailDestination(
                     icon: Icon(Icons.home), 
@@ -175,6 +175,25 @@ class GeneratorPage extends StatelessWidget{
 class FavoritosPage extends StatelessWidget{
   @override
   Widget build(BuildContext context){
-    return Text("Favoritos");
+    var appState = context.watch<MyAppState>();
+
+    if (appState.favoritos.isEmpty){
+      return Center(child: Text("Aun no hay favoritos"),);
+    }
+
+
+    return ListView(
+      children: [
+        Padding(
+          padding: EdgeInsets.all(20),
+          child: Text("Se han elegido ${appState.favoritos.length} favoritos"),
+        ),
+          
+        for  (var name in appState.favoritos)
+        ListTile(
+          leading: Icon(Icons.favorite),
+          title: Text(name.asLowerCase),
+        ),
+      ],);
 }
 }
